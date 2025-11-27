@@ -2,17 +2,18 @@ import random
 import statistics
 
 def monte_carlo(row, iterations=1000):
-    marketing_growth = []
-    rnd_growth = []
-    ops_growth = []
+    # Raw lists to store all 1000 outcomes (for visualization)
+    marketing_results = []
+    rnd_results = []
+    ops_results = []
 
     for i in range(iterations):
-        #market noise
+        # 1. Market Noise
         m_rev = row["Marketing_Revenue"] * random.uniform(0.9, 1.15)
         r_rev = row["RnD_Revenue"] * random.uniform(0.85, 1.20)
         o_rev = row["Ops_Revenue"] * random.uniform(0.95, 1.10)
 
-        #multiplier effect from marketing, rnd and operations
+        # 2. Multiplier Effect
         m_effect = (row["Marketing_Spend"] / row["Budget"]) * 0.10
         r_effect = (row["RnD_Spend"] / row["Budget"]) * 0.12
         o_effect = (row["Ops_Spend"] / row["Budget"]) * 0.05
@@ -21,20 +22,26 @@ def monte_carlo(row, iterations=1000):
         r_rev *= (1 + r_effect)
         o_rev *= (1 + o_effect)
 
-        #growth
-        marketing_growth.append((m_rev - row["Marketing_Revenue"]) / row["Marketing_Revenue"])
-        rnd_growth.append((r_rev - row["RnD_Revenue"]) / row["RnD_Revenue"])
-        ops_growth.append((o_rev - row["Ops_Revenue"]) / row["Ops_Revenue"])
+        # 3. Store Absolute Revenue (Real Money, not percentages)
+        marketing_results.append(m_rev)
+        rnd_results.append(r_rev)
+        ops_results.append(o_rev)
 
-    return { #output
+    return {
         "expected": {
-            "Marketing_Revenue": sum(marketing_growth) / iterations,
-            "RnD_Revenue": sum(rnd_growth) / iterations,
-            "Ops_Revenue": sum(ops_growth) / iterations,
+            "Marketing_Revenue": sum(marketing_results) / iterations,
+            "RnD_Revenue": sum(rnd_results) / iterations,
+            "Ops_Revenue": sum(ops_results) / iterations,
         },
         "risk": {
-            "Marketing_Revenue": statistics.stdev(marketing_growth),
-            "RnD_Revenue": statistics.stdev(rnd_growth),
-            "Ops_Revenue": statistics.stdev(ops_growth),
+            "Marketing_Revenue": statistics.stdev(marketing_results),
+            "RnD_Revenue": statistics.stdev(rnd_results),
+            "Ops_Revenue": statistics.stdev(ops_results),
+        },
+        # NEW: Send raw data to frontend for Histograms
+        "raw_data": {
+            "Marketing": marketing_results,
+            "RnD": rnd_results,
+            "Ops": ops_results
         }
     }

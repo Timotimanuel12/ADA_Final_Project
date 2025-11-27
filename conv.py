@@ -1,28 +1,45 @@
 import csv
 import random
 
-def generate_csv(filename, rows=10):
-    headers = ["Budget", "Marketing_Spend", "RnD_Spend", "Ops_Spend",
+
+def generate_csv(filename, rows=12):
+    # Added Year and Quarter to headers
+    headers = ["Year", "Quarter", "Budget", "Marketing_Spend", "RnD_Spend", "Ops_Spend",
                "Marketing_Revenue", "RnD_Revenue", "Ops_Revenue"]
 
     with open(filename, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
 
-        for _ in range(rows):
-            budget = random.randint(100000, 500000)
+        start_year = 2022
 
-            marketing = budget * random.uniform(0.2, 0.4)
-            rnd = budget * random.uniform(0.3, 0.5)
+        for i in range(rows):
+            # Calculate Year and Quarter sequentially
+            year = start_year + (i // 4)
+            quarter = (i % 4) + 1
+
+            # Realistic IDR Budget: Between 1 Billion and 10 Billion
+            budget = random.randint(1_000_000_000, 10_000_000_000)
+
+            # Allocations (must sum to ~budget)
+            marketing = budget * random.uniform(0.15, 0.35)
+            rnd = budget * random.uniform(0.20, 0.40)
             ops = budget - (marketing + rnd)
 
+            # Revenue Generation
             writer.writerow({
+                "Year": year,
+                "Quarter": quarter,
                 "Budget": budget,
-                "Marketing_Spend": round(marketing, 2),
-                "RnD_Spend": round(rnd, 2),
-                "Ops_Spend": round(ops, 2),
-                "Marketing_Revenue": round(marketing * random.uniform(0.9, 1.3), 2),
-                "RnD_Revenue": round(rnd * random.uniform(0.9, 1.4), 2),
-                "Ops_Revenue": round(ops * random.uniform(0.9, 1.2), 2),
+                "Marketing_Spend": round(marketing, 0),
+                "RnD_Spend": round(rnd, 0),
+                "Ops_Spend": round(ops, 0),
+                "Marketing_Revenue": round(marketing * random.uniform(1.1, 1.5), 0),
+                "RnD_Revenue": round(rnd * random.uniform(0.8, 2.0), 0),
+                "Ops_Revenue": round(ops * random.uniform(1.0, 1.2), 0),
             })
 
+
+if __name__ == "__main__":
+    generate_csv("data/historical_rupiah.csv", rows=12)
+    print("Generated historical_rupiah.csv with Year and Quarter data.")
