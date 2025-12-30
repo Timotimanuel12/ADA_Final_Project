@@ -13,7 +13,6 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
-
 def process_single_row(row_data):
     """Helper function to process one simulation row"""
     # 1. Run Monte Carlo
